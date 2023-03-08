@@ -1,54 +1,50 @@
-#OpenAI için library
+import os
+
 import openai
-#DALL-E için library
-import urllib.request
-#Image process
-from PIL import Image
+from flask import Flask, redirect, render_template, request, url_for
 
-# OpenAI API key'i buraya girin
-openai.api_key = "Write Your API here"
+app = Flask(__name__)
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-def chatGPT(prompt):
-    
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        max_tokens=50, #Maksimum Kelime Sayısı, kutucuğa girilebilen kelime sayısı ile eşitlenecek.
-        n=1,
-        stop=None,
-        temperature=0.5, 
-        #ChatGPT'nin ne kadar yaratıcı olacağını seçer.
-        #Daha yüksek sıcaklıklar daha yaratıcı ancak daha az tutarlı olacaktır. Maksimum değer 1. Minimum değer 0.
-    )
-    
-    # Tamamlanan metnin değişkene tanımlanması
-    answer = response.choices[0].text.strip()
-    
-    return answer
-
-
-def dall_e(image):
-    
-    response = openai.Image.create(
-        prompt=image,
-        n=1,
-        size="1024x1024"
+@app.route("/", methods=("GET", "POST"))
+def index():
+    if request.method == "POST":
+        question = request.form["question"]
+        response = openai.Completion.create(
+            model="text-davinci-003",
+            prompt=generate_prompt(question),
+            temperature=0.70,
+            max_tokens=500,
+            top_p=1,
+            frequency_penalty=0.0,
+            presence_penalty=0.0,
         )
-    
-    image_url = response['data'][0]['url']
-    
-    return image_url
+        return redirect(url_for("index", result=response.choices[0].text))
+
+    result = request.args.get("result")
+    return render_template("index.html", result=result)
 
 
-#Dall-E Deneme Kısmı
-image = input("Please decribe your image: ")
-req = urllib.request.urlretrieve(dall_e(image), "answer.png")
-img = Image.open("answer.png")
-img.show()
-
-#ChatGPT Deneme
-#for i in range(0,10): #For içerisine alınırsa 10 seferlik bir karşılıklı konuşma yaratılabilir.
-inp = input("Write your question: ")
-print(chatGPT(inp))
+@app.route("/dalle", methods = ("GET", "POST"))
+def dalle(image):
+    if request.method == "POST":
+        image =  request.form["image"]
+        response = openai.Image.create(
+            prompt=image,
+            n=1,
+            size="1024x1024"
+            )
+        
+        image_url = response['data'][0]['url']
+        
+        return redirect(url_for("dalle", image = image_url))
     
+    image = request.args.get("image")
+    return render_template("dall_e.hthml", image = image)
+
+def generate_prompt(question):
+        return """{}
+Answer:""".format(
+        question.capitalize()
+    )
