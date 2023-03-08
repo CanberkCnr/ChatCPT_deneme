@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<head>
+  <title>Dall_E Quickstart"</title>
+  <link
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
+</head>
+
+<body>
+  <img class="icon" />
+  <h3>Write what do you want draw?</h3>
+  <form action="/" method="post">
+    <input type="text" name="image" placeholder="Write what do you want draw?" required />
+    <input type="submit" value="answer" />
+  </form>
+  {% if result %}
+  <div class="image">{{ image }}</div>
+  {% endif %}
+</body>
+

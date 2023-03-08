@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<head>
+  <title>OpenAI Quickstart</title>
+  <link
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
+</head>
+
+<body>
+  <img class="icon" />
+  <h3>Write Your Question</h3>
+  <form action="/" method="post">
+    <input type="text" name="question" placeholder="Write Your Question" required />
+    <input type="submit" value="answer" />
+  </form>
+  {% if result %}
+  <div class="result">{{ result }}</div>
+  {% endif %}
+</body>
+
